@@ -12,8 +12,8 @@ class Image(models.Model):
     )
 
     class Meta:
-        verbose_name = _("userimage")
-        verbose_name_plural = _("userimages")
+        verbose_name = _("user image")
+        verbose_name_plural = _("user images")
 
     def __str__(self):
         return self.user.username
