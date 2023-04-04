@@ -2,10 +2,20 @@ from rest_framework import permissions, viewsets
 
 from .models import Nasheed
 from .permissions import NasheedPermissions
-from .serializers import NasheedSerializer
+from .serializers import NasheedSerializer, AdminNasheedSerializer
 
 
 class NasheedModelViewSet(viewsets.ModelViewSet):
     serializer_class = NasheedSerializer
     queryset = Nasheed.objects.all()
     permission_classes = [permissions.IsAuthenticatedOrReadOnly, NasheedPermissions]
+
+    def get_serializer_class(self):
+        if self.request.user.is_staff:
+            return AdminNasheedSerializer
+        return super().get_serializer_class()
+
+    def get_permissions(self):
+        if self.request.user.is_staff:
+            return []
+        return super().get_permissions()
