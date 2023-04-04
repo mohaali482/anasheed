@@ -1,3 +1,11 @@
-from django.shortcuts import render
+from rest_framework import viewsets
 
-# Create your views here.
+from .models import Nasheed
+from .permissions import NasheedPermissions
+from .serializers import NasheedSerializer
+
+
+class NasheedModelViewSet(viewsets.ModelViewSet):
+    serializer_class = NasheedSerializer
+    queryset = Nasheed.objects.all()
+    permission_classes = [NasheedPermissions]
