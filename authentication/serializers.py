@@ -55,6 +55,7 @@ class AdminUserSerializer(serializers.ModelSerializer):
         validated_data.pop("confirm_password")
         user = super().create(validated_data)
         user.set_password(password)
+        user.save()
 
         Image(user=user).image.save(image.name, ContentFile(image.read()))
 
