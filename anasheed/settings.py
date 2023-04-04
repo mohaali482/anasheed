@@ -89,6 +89,26 @@ DATABASES = {
     }
 }
 
+DBNAME = os.environ.get("POSTGRES_DB")
+DBUSER = os.environ.get("POSTGRES_USER")
+DBPASSWORD = os.environ.get("POSTGRES_PASSWORD")
+DBHOST = os.environ.get("POSTGRES_HOST")
+DBPORT = os.environ.get("POSTGRES_PORT")
+
+DATABASE_ON = all([DBNAME, DBUSER, DBPASSWORD, DBHOST, DBPORT])
+
+if DATABASE_ON:
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.postgresql',
+            'NAME': DBNAME,
+            'USER': DBUSER,
+            'PASSWORD': DBPASSWORD,
+            'HOST': DBHOST,
+            'PORT': DBPORT,
+            'OPTIONS': {'sslmode': 'require'},
+        }
+    }
 
 # Password validation
 # https://docs.djangoproject.com/en/3.2/ref/settings/#auth-password-validators
