@@ -29,7 +29,7 @@ SECRET_KEY = os.environ.get("SECRET_KEY")
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.environ.get("DEBUG", False)
 
-ALLOWED_HOSTS = ['127.0.0.1', '.vercel.app']
+ALLOWED_HOSTS = ["127.0.0.1", ".vercel.app"]
 
 
 # Application definition
@@ -43,6 +43,7 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
     # thrid part apps
     "rest_framework",
+    "corsheaders",
     # local apps
     "authentication",
     "nasheeds",
@@ -51,6 +52,7 @@ INSTALLED_APPS = [
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
+    "corsheaders.middleware.CorsMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
@@ -99,14 +101,14 @@ DATABASE_ON = all([DBNAME, DBUSER, DBPASSWORD, DBHOST, DBPORT])
 
 if DATABASE_ON:
     DATABASES = {
-        'default': {
-            'ENGINE': 'django.db.backends.postgresql',
-            'NAME': DBNAME,
-            'USER': DBUSER,
-            'PASSWORD': DBPASSWORD,
-            'HOST': DBHOST,
-            'PORT': DBPORT,
-            'OPTIONS': {'sslmode': 'require'},
+        "default": {
+            "ENGINE": "django.db.backends.postgresql",
+            "NAME": DBNAME,
+            "USER": DBUSER,
+            "PASSWORD": DBPASSWORD,
+            "HOST": DBHOST,
+            "PORT": DBPORT,
+            "OPTIONS": {"sslmode": "require"},
         }
     }
 
@@ -164,3 +166,5 @@ REST_FRAMEWORK = {
     "DEFAULT_PAGINATION_CLASS": "rest_framework.pagination.LimitOffsetPagination",
     "PAGE_SIZE": 10,
 }
+
+CORS_ALLOWED_ORIGINS = ["http://127.0.0.1:5173"]
