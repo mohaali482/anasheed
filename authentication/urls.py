@@ -6,6 +6,7 @@ from .views import (
     CookieTokenObtainPairView,
     CookieTokenRefreshView,
     UserRetrieveUpdateAPIView,
+    UserSignup,
     UserViewSet,
 )
 
@@ -19,4 +20,5 @@ urlpatterns = [
         "me", UserRetrieveUpdateAPIView.as_view(), name="user_retrieve_update_api_view"
     ),
     path("me/change-password", ChangePasswordAPIView.as_view(), name="change-password"),
+    path("signup", UserSignup.as_view(), name="user_signup"),
 ] + router.urls

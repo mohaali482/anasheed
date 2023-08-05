@@ -1,5 +1,5 @@
 from django.contrib.auth import get_user_model, update_session_auth_hash
-from rest_framework import generics, permissions, status, views
+from rest_framework import generics, permissions, status, views, viewsets
 from rest_framework.response import Response
 from rest_framework.viewsets import ModelViewSet
 from rest_framework_simplejwt.exceptions import InvalidToken
@@ -11,6 +11,7 @@ from .serializers import (
     AdminUserSerializer,
     ChangePasswordSerializer,
     RegularUserSerializer,
+    UserSignupSerializer,
 )
 
 User = get_user_model()
@@ -97,3 +98,8 @@ class CookieTokenRefreshView(TokenRefreshView):
         return super().finalize_response(request, response, *args, **kwargs)
 
     serializer_class = CookieTokenRefreshSerializer
+
+
+class UserSignup(generics.CreateAPIView):
+    serializer_class = UserSignupSerializer
+    queryset = User.objects.all()
