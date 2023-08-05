@@ -1,7 +1,10 @@
+from django.urls import path
 from rest_framework.routers import DefaultRouter
 
-from .views import NasheedModelViewSet
+from .views import MyNasheedModelViewSet, NasheedListAPIView
 
 router = DefaultRouter()
-router.register("nasheeds", NasheedModelViewSet)
-urlpatterns = [] + router.urls
+router.register("my-nasheeds", MyNasheedModelViewSet, basename="my-nasheeds")
+urlpatterns = [
+    path("nasheeds/", NasheedListAPIView.as_view(), name="nasheeds-list"),
+] + router.urls
