@@ -45,6 +45,7 @@ INSTALLED_APPS = [
     # thrid part apps
     "rest_framework",
     "corsheaders",
+    "django_filters",
     # local apps
     "authentication",
     "nasheeds",
