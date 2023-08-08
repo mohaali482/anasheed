@@ -2,7 +2,7 @@ from authentication.serializers import RegularUserSerializer
 from django.contrib.auth import get_user_model
 from rest_framework import serializers
 
-from .models import Nasheed
+from .models import Nasheed, SavedNasheed
 
 User = get_user_model()
 
@@ -38,4 +38,12 @@ class AdminNasheedSerializer(serializers.ModelSerializer):
 class AdminUpdateNasheedSerializer(serializers.ModelSerializer):
     class Meta:
         model = Nasheed
+        fields = "__all__"
+
+
+class SavedNasheedSerializer(serializers.ModelSerializer):
+    nasheed = NasheedSerializer()
+
+    class Meta:
+        model = SavedNasheed
         fields = "__all__"
