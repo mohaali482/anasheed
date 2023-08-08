@@ -42,8 +42,27 @@ class AdminUpdateNasheedSerializer(serializers.ModelSerializer):
 
 
 class SavedNasheedSerializer(serializers.ModelSerializer):
-    nasheed = NasheedSerializer()
+    user = serializers.PrimaryKeyRelatedField(read_only=True)
+
+    def to_representation(self, instance):
+        fields = super().to_representation(instance)
+        fields["nasheed"] = NasheedSerializer().to_representation(
+            instance=instance.nasheed
+        )
+        return fields
 
     class Meta:
         model = SavedNasheed
         fields = "__all__"
+
+    def create(self, validated_data):
+        request = self.context.get("request", None)
+        if request is None:
+            raise serializers.ValidationError("user cannot be null")
+
+        user = request.user
+        if user is None:
+            raise serializers.ValidationError("user cannot be null")
+
+        validated_data["user"] = user
+        return super().create(validated_data)
