@@ -45,11 +45,11 @@ class SavedNasheed(models.Model):
     class Meta:
         verbose_name = _("saved nasheed")
         verbose_name_plural = _("saved nasheeds")
-        constraints = (
+        constraints = [
             models.UniqueConstraint(
-                fields=["user", "nasheed"], name="unique user to nasheed relation"
-            ),
-        )
+                fields=["user", "nasheed"], name="unique user and nasheed relation"
+            )
+        ]
 
     def __str__(self):
         return f"{self.user} -> {self.nasheed}"

@@ -1,5 +1,6 @@
 from authentication.serializers import RegularUserSerializer
 from django.contrib.auth import get_user_model
+from django.db import IntegrityError
 from rest_framework import serializers
 
 from .models import Nasheed, SavedNasheed
@@ -58,11 +59,22 @@ class SavedNasheedSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         request = self.context.get("request", None)
         if request is None:
-            raise serializers.ValidationError("user cannot be null")
+            raise serializers.ValidationError({"user": "user cannot be null"})
 
         user = request.user
         if user is None:
-            raise serializers.ValidationError("user cannot be null")
+            raise serializers.ValidationError({"user": "user cannot be null"})
 
         validated_data["user"] = user
-        return super().create(validated_data)
+        try:
+            instance = super().create(validated_data)
+        except IntegrityError as err:
+            if (
+                str(err)
+                == "UNIQUE constraint failed: nasheeds_savednasheed.user_id, nasheeds_savednasheed.nasheed_id"
+            ):
+                raise serializers.ValidationError(
+                    {"nasheed": "you've already saved this nasheed"}
+                )
+
+        return instance
