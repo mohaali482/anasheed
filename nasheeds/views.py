@@ -1,13 +1,14 @@
 from django_filters import rest_framework as filters
 from rest_framework import permissions, viewsets
 
-from .filters import NasheedsFilter
-from .models import Nasheed
+from .filters import NasheedsFilter, SavedNasheedsFilter
+from .models import Nasheed, SavedNasheed
 from .permissions import NasheedPermissions
 from .serializers import (
     AdminNasheedSerializer,
     AdminUpdateNasheedSerializer,
     NasheedSerializer,
+    SavedNasheedSerializer,
 )
 
 
@@ -29,3 +30,14 @@ class NasheedModelViewSet(viewsets.ModelViewSet):
         if self.request.user.is_staff:
             return []
         return super().get_permissions()
+
+
+class SavedNasheedModelViewSet(viewsets.ModelViewSet):
+    serializer_class = SavedNasheedSerializer
+    filter_backends = (filters.DjangoFilterBackend,)
+    filterset_class = SavedNasheedsFilter
+    permission_classes = (permissions.IsAuthenticated,)
+
+    def get_queryset(self):
+        queryset = SavedNasheed.objects.filter(user=self.request.user)
+        return queryset
