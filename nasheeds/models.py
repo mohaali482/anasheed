@@ -30,3 +30,21 @@ class Nasheed(models.Model):
 
     def get_absolute_url(self):
         return reverse("nasheed", kwargs={"pk": self.pk})
+
+
+class SavedNasheed(models.Model):
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL, verbose_name=_("User"), on_delete=models.CASCADE
+    )
+    nasheed = models.ForeignKey(
+        "nasheeds.Nasheed", verbose_name=_("Nasheed"), on_delete=models.CASCADE
+    )
+    created_at = models.DateTimeField(_("Created at"), auto_now_add=True)
+    updated_at = models.DateTimeField(_("Updated at"), auto_now=True)
+
+    class Meta:
+        verbose_name = _("saved nasheed")
+        verbose_name_plural = _("saved nasheeds")
+
+    def __str__(self):
+        return f"{self.user} -> {self.nasheed}"
