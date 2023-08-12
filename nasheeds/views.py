@@ -20,10 +20,8 @@ class NasheedModelViewSet(viewsets.ModelViewSet):
     permission_classes = [permissions.IsAuthenticatedOrReadOnly, NasheedPermissions]
 
     def get_serializer_class(self):
-        if self.request.user.is_staff:
-            if self.action == "update":
-                return AdminUpdateNasheedSerializer
-            return AdminNasheedSerializer
+        if self.request.user.is_superuser and self.action == "update":
+            return AdminUpdateNasheedSerializer
         return super().get_serializer_class()
 
     def get_permissions(self):
