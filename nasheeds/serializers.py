@@ -11,6 +11,18 @@ User = get_user_model()
 class NasheedSerializer(serializers.ModelSerializer):
     owner = RegularUserSerializer(read_only=True)
 
+    def to_representation(self, instance):
+        request = self.context.get("request", None)
+        fields = super().to_representation(instance)
+        if request is None:
+            return fields
+
+        user = request.user
+        if user is None or not user.is_authenticated:
+            return fields
+        fields["saved"] = instance.savednasheed_set.filter(user=user).exists()
+        return fields
+
     class Meta:
         model = Nasheed
         fields = "__all__"
