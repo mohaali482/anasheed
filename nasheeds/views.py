@@ -5,7 +5,6 @@ from .filters import NasheedsFilter, SavedNasheedsFilter
 from .models import Nasheed, SavedNasheed
 from .permissions import NasheedPermissions
 from .serializers import (
-    AdminNasheedSerializer,
     AdminUpdateNasheedSerializer,
     NasheedSerializer,
     SavedNasheedSerializer,

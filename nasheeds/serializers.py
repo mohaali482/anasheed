@@ -38,16 +38,6 @@ class NasheedSerializer(serializers.ModelSerializer):
         return super().create(validated_data)
 
 
-class AdminNasheedSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Nasheed
-        fields = "__all__"
-
-    def to_representation(self, instance):
-        self.fields["owner"] = RegularUserSerializer(read_only=True)
-        return super().to_representation(instance)
-
-
 class AdminUpdateNasheedSerializer(serializers.ModelSerializer):
     class Meta:
         model = Nasheed
