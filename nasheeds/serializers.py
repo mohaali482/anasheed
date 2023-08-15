@@ -10,6 +10,7 @@ User = get_user_model()
 
 class NasheedSerializer(serializers.ModelSerializer):
     owner = RegularUserSerializer(read_only=True)
+    duration = serializers.ReadOnlyField()
 
     def to_representation(self, instance):
         request = self.context.get("request", None)
@@ -39,6 +40,8 @@ class NasheedSerializer(serializers.ModelSerializer):
 
 
 class AdminUpdateNasheedSerializer(serializers.ModelSerializer):
+    duration = serializers.ReadOnlyField()
+
     class Meta:
         model = Nasheed
         fields = "__all__"

@@ -1,3 +1,4 @@
+import mutagen
 from django.conf import settings
 from django.db import models
 from django.urls import reverse
@@ -31,7 +32,8 @@ class Nasheed(models.Model):
         return self.name
 
     def save(self, *args, **kwargs) -> None:
-        self.duration = self.audio.duration
+        audio_info = mutagen.File(self.audio.file).info
+        self.duration = audio_info.length
 
         return super().save(*args, **kwargs)
 
