@@ -1,11 +1,13 @@
 from django.contrib.auth import get_user_model, update_session_auth_hash
-from rest_framework import generics, permissions, status, views, viewsets
+from django.shortcuts import get_object_or_404
+from rest_framework import generics, permissions, status, views, serializers
 from rest_framework.response import Response
 from rest_framework.viewsets import ModelViewSet
 from rest_framework_simplejwt.exceptions import InvalidToken
 from rest_framework_simplejwt.serializers import TokenRefreshSerializer
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 
+from .models import Image
 from .permissions import IsSelf
 from .serializers import (
     AdminUserSerializer,
@@ -25,7 +27,7 @@ class UserViewSet(ModelViewSet):
     ]
 
 
-class UserRetrieveUpdateAPIView(generics.RetrieveUpdateAPIView):
+class UserRetrieveUpdateDestroyAPIView(generics.RetrieveUpdateDestroyAPIView):
     serializer_class = RegularUserSerializer
     permission_classes = [
         permissions.IsAuthenticated,
@@ -34,6 +36,60 @@ class UserRetrieveUpdateAPIView(generics.RetrieveUpdateAPIView):
 
     def get_object(self):
         return self.request.user
+
+    def perform_destroy(self, instance):
+        instance.is_active = False
+        instance.save()
+
+
+class UserProfileDestroyAPIView(generics.DestroyAPIView):
+    permission_classes = [
+        permissions.IsAuthenticated,
+    ]
+
+    def get_object(self):
+        return get_object_or_404(Image, user=self.request.user)
+
+
+class ChangePasswordAPIView(views.APIView):
+    serializer_class = ChangePasswordSerializer
+
+    def post(self, request):
+        data = self.serializer_class(data=request.POST)
+        if data.is_valid(raise_exception=True):
+            valid_password = request.user.check_password(
+                data.validated_data.get("current_password")
+            )
+            if not valid_password:
+                raise serializers.ValidationError(
+                    {"current_password": ["Incorrect password"]}
+                )
+            user = request.user
+            user.set_password(data.validated_data.get("password"))
+            user.save()
+            update_session_auth_hash(request, user)
+            return Response(data={"msg": "success"}, status=status.HTTP_200_OK)
+
+        return Response(data={"msg": "error"}, status=status.HTTP_400_BAD_REQUEST)
+
+
+class CookieTokenObtainPairView(TokenObtainPairView):
+    def finalize_response(self, request, response, *args, **kwargs):
+        if self.request.method == "DELETE":
+            response.delete_cookie("refresh_token")
+        elif response.data.get("refresh"):
+            cookie_max_age = 3600 * 24 * 14
+            response.set_cookie(
+                "refresh_token",
+                response.data["refresh"],
+                max_age=cookie_max_age,
+                httponly=True,
+            )
+            del response.data["refresh"]
+        return super().finalize_response(request, response, *args, **kwargs)
+
+    def delete(self, request):
+        return Response("success", status=status.HTTP_204_NO_CONTENT)
 
 
 class CookieTokenRefreshSerializer(TokenRefreshSerializer):
@@ -45,43 +101,6 @@ class CookieTokenRefreshSerializer(TokenRefreshSerializer):
             return super().validate(attrs)
         else:
             raise InvalidToken("No valid token found in cookie 'refresh_token'")
-
-
-class ChangePasswordAPIView(views.APIView):
-    serializer_class = ChangePasswordSerializer
-
-    def post(self, request):
-        data = self.serializer_class(data=request.POST)
-        if data.is_valid(raise_exception=True):
-            user = request.user
-            user.set_password(data.validated_data.get("password"))
-            user.save()
-            update_session_auth_hash(request, user)
-            return Response(data={"msg": "success"}, status=status.HTTP_200_OK)
-
-        return Response(data={"msg": "error"}, status=status.HTTP_400_BAD_REQUEST)
-
-
-class CookieTokenObtainPairView(TokenObtainPairView):
-    @classmethod
-    def get_token(cls, user):
-        token = super().get_token(user)
-        if user.is_admin:
-            token["admin"] = True
-
-        return token
-
-    def finalize_response(self, request, response, *args, **kwargs):
-        if response.data.get("refresh"):
-            cookie_max_age = 3600 * 24 * 14  # 14 days
-            response.set_cookie(
-                "refresh_token",
-                response.data["refresh"],
-                max_age=cookie_max_age,
-                httponly=True,
-            )
-            del response.data["refresh"]
-        return super().finalize_response(request, response, *args, **kwargs)
 
 
 class CookieTokenRefreshView(TokenRefreshView):

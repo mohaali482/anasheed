@@ -16,7 +16,7 @@ class NasheedModelViewSet(viewsets.ModelViewSet):
     queryset = Nasheed.objects.all()
     filter_backends = (filters.DjangoFilterBackend,)
     filterset_class = NasheedsFilter
-    permission_classes = [permissions.IsAuthenticatedOrReadOnly, NasheedPermissions]
+    permission_classes = [permissions.IsAuthenticated]
 
     def get_serializer_class(self):
         if self.request.user.is_superuser and self.action == "update":
@@ -27,6 +27,17 @@ class NasheedModelViewSet(viewsets.ModelViewSet):
         if self.request.user.is_staff:
             return []
         return super().get_permissions()
+
+
+class MyNasheedModelViewSet(viewsets.ModelViewSet):
+    serializer_class = NasheedSerializer
+    queryset = Nasheed.objects.all()
+    filter_backends = (filters.DjangoFilterBackend,)
+    filterset_class = NasheedsFilter
+    permission_classes = [permissions.IsAuthenticated, NasheedPermissions]
+
+    def get_queryset(self):
+        return super().get_queryset().filter(owner=self.request.user)
 
 
 class SavedNasheedModelViewSet(viewsets.ModelViewSet):

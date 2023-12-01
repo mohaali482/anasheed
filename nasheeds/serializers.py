@@ -21,7 +21,13 @@ class NasheedSerializer(serializers.ModelSerializer):
         user = request.user
         if user is None or not user.is_authenticated:
             return fields
-        fields["saved"] = instance.savednasheed_set.filter(user=user).exists()
+
+        saved = instance.savednasheed_set.filter(user=user)
+        fields["saved"] = saved.exists()
+
+        if saved.exists():
+            fields["saved_id"] = saved.first().id
+
         return fields
 
     class Meta:
@@ -48,18 +54,15 @@ class AdminUpdateNasheedSerializer(serializers.ModelSerializer):
 
 
 class SavedNasheedSerializer(serializers.ModelSerializer):
-    user = serializers.PrimaryKeyRelatedField(read_only=True)
-
     def to_representation(self, instance):
-        fields = super().to_representation(instance)
-        fields["nasheed"] = NasheedSerializer().to_representation(
-            instance=instance.nasheed
-        )
+        fields = NasheedSerializer().to_representation(instance=instance.nasheed)
+        fields["saved"] = True
+        fields["saved_id"] = instance.id
         return fields
 
     class Meta:
         model = SavedNasheed
-        fields = "__all__"
+        fields = ("nasheed",)
 
     def create(self, validated_data):
         request = self.context.get("request", None)

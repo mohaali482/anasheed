@@ -72,14 +72,18 @@ class RegularUserSerializer(serializers.ModelSerializer):
 
     def update(self, instance, validated_data):
         if "image" in validated_data:
+            user = self.context["request"].user
             image = validated_data.pop("image")["image"]
-            image_instance = self.context["request"].user.image
+            image_instance, _ = Image.objects.get_or_create(user=user)
             image_instance.image = image
             image_instance.save()
         return super().update(instance, validated_data)
 
 
 class ChangePasswordSerializer(serializers.Serializer):
+    current_password = serializers.CharField(
+        style={"input-type": "password"}, write_only=True
+    )
     password = serializers.CharField(
         style={"input-type": "password"},
         write_only=True,
@@ -92,7 +96,7 @@ class ChangePasswordSerializer(serializers.Serializer):
     def validate(self, attrs):
         if attrs["confirm_password"] != attrs["password"]:
             raise serializers.ValidationError(
-                {"confirm_password": "passwords don't match"}
+                {"confirm_password": ["passwords don't match"]}
             )
         return attrs
 
