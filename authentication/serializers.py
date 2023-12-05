@@ -131,3 +131,8 @@ class UserSignupSerializer(serializers.Serializer):
         user.save()
 
         return user
+
+
+class DeleteAccountSerializer(serializers.Serializer):
+    username = serializers.CharField()
+    password = serializers.CharField()
