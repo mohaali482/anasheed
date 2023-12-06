@@ -16,7 +16,10 @@ class NasheedModelViewSet(viewsets.ModelViewSet):
     queryset = Nasheed.objects.all()
     filter_backends = (filters.DjangoFilterBackend,)
     filterset_class = NasheedsFilter
-    permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [
+        permissions.IsAuthenticatedOrReadOnly,
+        permissions.DjangoModelPermissionsOrAnonReadOnly,
+    ]
 
     def get_serializer_class(self):
         if self.request.user.is_superuser and self.action == "update":
