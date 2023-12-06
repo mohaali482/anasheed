@@ -113,12 +113,14 @@ class ChangePasswordSerializer(serializers.Serializer):
         return attrs
 
 
-class UserSignupSerializer(serializers.Serializer):
+class UserSignupSerializer(serializers.ModelSerializer):
     username = serializers.CharField(
         validators=[validators.UniqueValidator(queryset=User.objects.all())]
     )
     first_name = serializers.CharField()
     last_name = serializers.CharField()
+    image = serializers.ImageField(required=False)
+    email = serializers.EmailField()
     password = serializers.CharField(
         style={"input-type": "password"},
         write_only=True,
@@ -136,13 +138,28 @@ class UserSignupSerializer(serializers.Serializer):
         return attrs
 
     def create(self, validated_data):
+        image = validated_data.pop("image")
         password = validated_data.pop("password")
         validated_data.pop("confirm_password")
         user = User.objects.create(**validated_data)
         user.set_password(password)
         user.save()
+        user_image = Image.objects.create(user=user, image=image)
+        user_image.save()
 
         return user
+
+    class Meta:
+        model = User
+        fields = (
+            "username",
+            "image",
+            "first_name",
+            "last_name",
+            "email",
+            "password",
+            "confirm_password",
+        )
 
 
 class DeleteAccountSerializer(serializers.Serializer):
