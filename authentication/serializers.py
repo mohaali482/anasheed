@@ -1,4 +1,5 @@
 from django.contrib.auth import get_user_model, password_validation
+from django.contrib.auth.models import Permission
 from django.core.files.base import ContentFile
 from rest_framework import serializers, validators
 
@@ -62,13 +63,21 @@ class AdminUserSerializer(serializers.ModelSerializer):
         return user
 
 
+class PermissionSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Permission
+        fields = ("name", "codename")
+        read_only_fields = ("name", "codename")
+
+
 class RegularUserSerializer(serializers.ModelSerializer):
     image = serializers.ImageField(source="image.image", required=False)
     date_joined = serializers.DateTimeField(read_only=True)
+    permissions = serializers.SerializerMethodField()
 
     class Meta:
         model = User
-        fields = BASIC_USER_FIELDS
+        fields = BASIC_USER_FIELDS + ("permissions",)
 
     def update(self, instance, validated_data):
         if "image" in validated_data:
@@ -78,6 +87,9 @@ class RegularUserSerializer(serializers.ModelSerializer):
             image_instance.image = image
             image_instance.save()
         return super().update(instance, validated_data)
+
+    def get_permissions(self, obj):
+        return PermissionSerializer(obj.user_permissions.all(), many=True).data
 
 
 class ChangePasswordSerializer(serializers.Serializer):
