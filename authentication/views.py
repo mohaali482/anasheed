@@ -1,4 +1,7 @@
+from django.conf import settings
 from django.contrib.auth import get_user_model, update_session_auth_hash
+from django.contrib.auth.tokens import PasswordResetTokenGenerator
+from django.core.mail import EmailMessage, get_connection
 from django.shortcuts import get_object_or_404
 from rest_framework import generics, permissions, status, views, serializers
 from rest_framework.response import Response
@@ -15,6 +18,8 @@ from .serializers import (
     DeleteAccountSerializer,
     RegularUserSerializer,
     UserSignupSerializer,
+    PasswordResetForm,
+    ChangePasswordForm,
 )
 
 User = get_user_model()
@@ -142,3 +147,69 @@ class CookieTokenRefreshView(TokenRefreshView):
 class UserSignup(generics.CreateAPIView):
     serializer_class = UserSignupSerializer
     queryset = User.objects.all()
+
+
+token_generator = PasswordResetTokenGenerator()
+
+
+class ForgotPasswordAPIView(views.APIView):
+    serializer_class = PasswordResetForm
+
+    def post(self, request):
+        email = request.data.get("email")
+        serializer = self.serializer_class(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        user = User.objects.filter(email=email)
+        if user.exists():
+            user = user.first()
+            token = token_generator.make_token(user)
+            link = settings.FRONTEND_URL + str(user.id) + "/" + str(token)
+            mail_subject = "Reset your password"
+            message = (
+                f"Hello, {user.get_full_name()}"
+                + "\n\nThere was a request to reset your password. "
+                + "If you are the one who requested this service click on the link below. "
+                + "If you are not trying to reset your password you can ignore this email. "
+                + "\n\n\n Thank you for your time\n\n\n"
+                + f"Link:- {link}"
+            )
+            with get_connection(
+                host=settings.EMAIL_HOST,
+                port=settings.EMAIL_PORT,
+                username=settings.EMAIL_HOST_USER,
+                password=settings.EMAIL_HOST_PASSWORD,
+                use_tls=settings.EMAIL_USE_TLS,
+            ) as connection:
+                r = EmailMessage(
+                    subject=mail_subject,
+                    body=message,
+                    to=[email],
+                    from_email=settings.FROM_EMAIL,
+                    connection=connection,
+                ).send()
+
+        return Response(
+            {
+                "detail": "If there is a user with email we have sent a reset email. Check your email"
+            },
+            status=200,
+        )
+
+
+class PasswordResetAPIView(views.APIView):
+    serializer_class = ChangePasswordForm
+
+    def post(self, request, uid=None, token=None):
+        user = User.objects.filter(id=uid)
+        if user.exists():
+            user = user.first()
+            if token_generator.check_token(user, token):
+                serializer = self.serializer_class(data=request.data)
+                serializer.is_valid(raise_exception=True)
+                password = serializer.validated_data.get("new_password")
+                user.set_password(password)
+                user.save()
+
+                return Response({"detail": "Password changed successfuly"}, status=200)
+
+        return Response({"detail": "Activation link invalid."}, status=400)

@@ -188,3 +188,29 @@ if GOOGLE_APPLICATION_CREDENTIALS:
     GS_CREDENTIALS = service_account.Credentials.from_service_account_file(
         os.path.join(BASE_DIR, GOOGLE_APPLICATION_CREDENTIALS)
     )
+
+
+# Email
+EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
+
+EMAIL_USE_TLS = os.getenv("EMAIL_USE_TLS")
+EMAIL_HOST = os.getenv("EMAIL_HOST")
+EMAIL_HOST_USER = os.getenv("EMAIL_HOST_USER")
+EMAIL_HOST_PASSWORD = os.getenv("EMAIL_HOST_PASSWORD")
+EMAIL_PORT = os.getenv("EMAIL_PORT")
+FROM_EMAIL = os.getenv("FROM_EMAIL")
+FRONTEND_URL = os.getenv("FRONTEND_URL")
+
+EMAIL_ON = all(
+    [
+        EMAIL_USE_TLS,
+        EMAIL_HOST,
+        EMAIL_HOST_USER,
+        EMAIL_HOST_PASSWORD,
+        EMAIL_PORT,
+        FROM_EMAIL,
+        FRONTEND_URL,
+    ]
+)
+if EMAIL_ON:
+    EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
