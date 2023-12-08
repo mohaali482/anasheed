@@ -6,7 +6,7 @@ from .models import Nasheed, SavedNasheed
 class NasheedsFilter(filters.FilterSet):
     class Meta:
         model = Nasheed
-        fields = {"owner": ("exact",), "name": ("contains",)}
+        fields = {"owner": ("exact",), "name": ("icontains",)}
 
 
 class SavedNasheedsFilter(filters.FilterSet):
