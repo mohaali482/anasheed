@@ -169,7 +169,7 @@ REST_FRAMEWORK = {
     "PAGE_SIZE": 10,
 }
 
-CORS_ALLOWED_ORIGINS = ["http://127.0.0.1:5173"]
+CORS_ALLOWED_ORIGINS = ["http://127.0.0.1:5173", os.environ.get("FRONTEND", "")]
 CORS_ALLOW_CREDENTIALS = True
 import json
 
