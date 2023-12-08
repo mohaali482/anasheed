@@ -168,8 +168,12 @@ REST_FRAMEWORK = {
     "DEFAULT_PAGINATION_CLASS": "rest_framework.pagination.LimitOffsetPagination",
     "PAGE_SIZE": 10,
 }
-
-CORS_ALLOWED_ORIGINS = ["http://127.0.0.1:5173", os.environ.get("FRONTEND", "")]
+FRONTEND = os.environ.get("FRONTEND")
+CORS_ALLOWED_ORIGINS = [
+    "http://127.0.0.1:5173",
+]
+if FRONTEND:
+    CORS_ALLOWED_ORIGINS.append(FRONTEND)
 CORS_ALLOW_CREDENTIALS = True
 import json
 
