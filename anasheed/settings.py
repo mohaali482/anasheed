@@ -172,18 +172,44 @@ REST_FRAMEWORK = {
     "DEFAULT_PAGINATION_CLASS": "rest_framework.pagination.LimitOffsetPagination",
     "PAGE_SIZE": 10,
 }
+
 FRONTEND = os.environ.get("FRONTEND")
+
 CORS_ALLOWED_ORIGINS = [
     "http://127.0.0.1:5173",
 ]
+
 if FRONTEND:
     CORS_ALLOWED_ORIGINS.append(FRONTEND)
-CORS_ALLOW_CREDENTIALS = True
-import json
 
-GOOGLE_APPLICATION_CREDENTIALS = json.loads(
-    os.environ.get("GOOGLE_APPLICATION_CREDENTIALS", "{}")
+CORS_ALLOW_CREDENTIALS = True
+
+GOOGLE_PROJECT_ID = os.environ.get("GOOGLE_PROJECT_ID")
+GOOGLE_PRIVATE_KEY_ID = os.environ.get("GOOGLE_PRIVATE_KEY_ID")
+GOOGLE_PRIVATE_KEY = os.environ.get("GOOGLE_PRIVATE_KEY")
+GOOGLE_CLIENT_EMAIL = os.environ.get("GOOGLE_CLIENT_EMAIL")
+GOOGLE_CLIENT_ID = os.environ.get("GOOGLE_CLIENT_ID")
+GOOGLE_AUTH_URI = os.environ.get("GOOGLE_AUTH_URI")
+GOOGLE_TOKEN_URI = os.environ.get("GOOGLE_TOKEN_URI")
+GOOGLE_AUTH_PROVIDER_X509_CERT_URL = os.environ.get(
+    "GOOGLE_AUTH_PROVIDER_X509_CERT_URL"
 )
+GOOGLE_CLIENT_X509_CERT_URL = os.environ.get("GOOGLE_CLIENT_X509_CERT_URL")
+
+GOOGLE_APPLICATION_CREDENTIALS = all(
+    [
+        GOOGLE_PROJECT_ID,
+        GOOGLE_PRIVATE_KEY_ID,
+        GOOGLE_PRIVATE_KEY,
+        GOOGLE_CLIENT_EMAIL,
+        GOOGLE_CLIENT_ID,
+        GOOGLE_AUTH_URI,
+        GOOGLE_TOKEN_URI,
+        GOOGLE_AUTH_PROVIDER_X509_CERT_URL,
+        GOOGLE_CLIENT_X509_CERT_URL,
+    ]
+)
+
 from datetime import timedelta
 
 SIMPLE_JWT = {
@@ -196,7 +222,18 @@ if GOOGLE_APPLICATION_CREDENTIALS:
     GS_BUCKET_NAME = "nasheeds-198d4.appspot.com"
 
     GS_CREDENTIALS = service_account.Credentials.from_service_account_info(
-        GOOGLE_APPLICATION_CREDENTIALS
+        {
+            "type": "service_account",
+            "project_id": GOOGLE_PROJECT_ID,
+            "private_key_id": GOOGLE_PRIVATE_KEY_ID,
+            "private_key": GOOGLE_PRIVATE_KEY,
+            "client_email": GOOGLE_CLIENT_EMAIL,
+            "client_id": GOOGLE_CLIENT_ID,
+            "auth_uri": GOOGLE_AUTH_URI,
+            "token_uri": GOOGLE_TOKEN_URI,
+            "auth_provider_x509_cert_url": GOOGLE_AUTH_PROVIDER_X509_CERT_URL,
+            "client_x509_cert_url": GOOGLE_CLIENT_X509_CERT_URL,
+        }
     )
 
 
