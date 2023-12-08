@@ -1,14 +1,8 @@
 {
-    "builds": [
-      {
-        "src": "anasheed/wsgi.py",
-        "use": "@vercel/python"
-      }
-    ],
-    "routes": [
-      {
-        "src": "/(.*)",
-        "dest": "anasheed/wsgi.py"
-      }
-    ]
-  }
+  "builds": [
+    {
+      "src": "anasheed/wsgi.py",
+      "use": "@vercel/python"
+    }
+  ]
+}
