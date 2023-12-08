@@ -1,4 +1,10 @@
 {
+  "builds": [
+    {
+      "src": "anasheed/wsgi.py",
+      "use": "@vercel/python"
+    }
+  ],
   "routes": [
     {
       "src": "/(.*)",
