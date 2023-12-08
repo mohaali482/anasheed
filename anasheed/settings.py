@@ -171,9 +171,11 @@ REST_FRAMEWORK = {
 
 CORS_ALLOWED_ORIGINS = ["http://127.0.0.1:5173"]
 CORS_ALLOW_CREDENTIALS = True
+import json
 
-GOOGLE_APPLICATION_CREDENTIALS = os.environ.get("GOOGLE_APPLICATION_CREDENTIALS")
-
+GOOGLE_APPLICATION_CREDENTIALS = json.loads(
+    os.environ.get("GOOGLE_APPLICATION_CREDENTIALS", "{}")
+)
 from datetime import timedelta
 
 SIMPLE_JWT = {
@@ -185,8 +187,8 @@ if GOOGLE_APPLICATION_CREDENTIALS:
 
     GS_BUCKET_NAME = "nasheeds-198d4.appspot.com"
 
-    GS_CREDENTIALS = service_account.Credentials.from_service_account_file(
-        os.path.join(BASE_DIR, GOOGLE_APPLICATION_CREDENTIALS)
+    GS_CREDENTIALS = service_account.Credentials.from_service_account_info(
+        GOOGLE_APPLICATION_CREDENTIALS
     )
 
 
