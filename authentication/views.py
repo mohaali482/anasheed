@@ -110,6 +110,7 @@ class CookieTokenObtainPairView(TokenObtainPairView):
                 max_age=cookie_max_age,
                 httponly=True,
                 samesite="None",
+                secure=True,
             )
             del response.data["refresh"]
         return super().finalize_response(request, response, *args, **kwargs)
