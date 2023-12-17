@@ -16,6 +16,7 @@ from .serializers import (
     AdminUserSerializer,
     ChangePasswordSerializer,
     DeleteAccountSerializer,
+    LoggedInUserSerializer,
     RegularUserSerializer,
     UserSignupSerializer,
     PasswordResetForm,
@@ -34,7 +35,7 @@ class UserViewSet(ModelViewSet):
 
 
 class UserRetrieveUpdateDestroyAPIView(generics.RetrieveUpdateDestroyAPIView):
-    serializer_class = RegularUserSerializer
+    serializer_class = LoggedInUserSerializer
     permission_classes = [
         permissions.IsAuthenticated,
         IsSelf,

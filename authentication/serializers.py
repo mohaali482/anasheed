@@ -74,7 +74,16 @@ class PermissionSerializer(serializers.ModelSerializer):
 class RegularUserSerializer(serializers.ModelSerializer):
     image = serializers.ImageField(source="image.image", required=False)
     date_joined = serializers.DateTimeField(read_only=True)
+
+    class Meta:
+        model = User
+        fields = BASIC_USER_FIELDS
+
+
+class LoggedInUserSerializer(serializers.ModelSerializer):
     permissions = serializers.SerializerMethodField()
+    image = serializers.ImageField(source="image.image")
+    date_joined = serializers.DateTimeField(read_only=True)
 
     class Meta:
         model = User
