@@ -99,7 +99,8 @@ class LoggedInUserSerializer(serializers.ModelSerializer):
         return super().update(instance, validated_data)
 
     def get_permissions(self, obj):
-        return obj.get_all_permissions()
+        permission = set([permission.split(".")[1] for permission in obj.get_all_permissions()])
+        return PermissionSerializer(Permission.objects.filter(codename__in=permission), many=True).data
 
 
 class ChangePasswordSerializer(serializers.Serializer):
