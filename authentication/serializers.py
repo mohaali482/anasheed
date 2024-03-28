@@ -149,14 +149,18 @@ class UserSignupSerializer(serializers.ModelSerializer):
         return attrs
 
     def create(self, validated_data):
-        image = validated_data.pop("image")
+        image = None
+        if "image" in validated_data:
+            image = validated_data.pop("image")
         password = validated_data.pop("password")
         validated_data.pop("confirm_password")
         user = User.objects.create(**validated_data)
         user.set_password(password)
         user.save()
-        user_image = Image.objects.create(user=user, image=image)
-        user_image.save()
+        
+        if image is not None:
+            user_image = Image.objects.create(user=user, image=image)
+            user_image.save()
 
         return user
 
